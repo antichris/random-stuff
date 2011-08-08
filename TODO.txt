@@ -1,3 +1,5 @@
+5)	Fix ytHack.js to work!
+
 4)	Fix locationDummy.js to work with about:stuff URLs
 1)	Figure out TODO for the whole website/ folder
 3)	Solidify colorful.js
