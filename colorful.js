@@ -28,7 +28,7 @@ javascript: (function () {
 		green = higher(percent);
 		return 'rgb(' + red + ',' + green + ',0)';
 	}
-	document.body.onmousemove = function (event) {
+	document.onmousemove = function (event) {
 		document.body.style.background = RGpercent(document.width, event.offsetX);
 	};
 })();
