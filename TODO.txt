@@ -1,5 +1,6 @@
-4)	Fix locationDummy to work with about:stuff URLs.
-3)	Solidify colorful.
-2)	Solidify watch-stuff-online.
-1)	Figure out what to do with that Transliterator thing.
-0)	Make the codePage something useful.
+4)	Fix locationDummy.js to work with about:stuff URLs
+1)	Figure out TODO for the whole website/ folder
+3)	Solidify colorful.js
+2)	Solidify watch-stuff-online.js
+1)	Figure out TODO for that Transliterator.js thing
+0)	Make the codePage.js something useful
