@@ -1,0 +1,45 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript">
+	function Transliterator () {
+		var notif;
+		init = function () {
+			this.notif = new TrlNotification ();
+			}
+		
+		}
+	function TrlNotification () {
+		var element, id;
+		function create () {
+			var a = document.createElement('div');
+			var b = a.style;
+			b.width = '200px';
+			b.height = '50px';
+			b.background = 'black';
+			b.border = 'solid 3px maroon';
+			b.display = 'none';
+			this.id = a.id = 'translitNotif';
+			return this.element = a;
+			}
+		function setDisplay (display) {
+			return (this.element.style.display = display) == display;
+			}
+		this.show = function () {
+			return setDisplay('block');
+			}
+		this.hide = function () {
+			return setDisplay('none');
+			}
+		this.remove = function () {
+			return document.body.appendChild()
+			}
+		function init () {
+			return document.body.appendChild(create()) == this.element;
+			}
+		init ();
+		this.element = element;
+		}
+</script>
+</head><body>
+	<textarea></textarea>
+	<input type="text" />
+</body></html>

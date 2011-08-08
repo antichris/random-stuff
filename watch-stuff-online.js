@@ -3,7 +3,9 @@
 	try {
 		document.body.removeChild(document.getElementById('_atssh'))
 	}
-	catch (e) {}
+	catch (e) {
+		console.log('When removing _atssh:', e)
+	}
 	try {
 		url = document.getElementById('source_player').childNodes[0].src;
 		try {
