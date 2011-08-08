@@ -13,8 +13,8 @@ function LocationDummy(href){
 		port:':',
 		path:'/',
 		query:'?',
-		fragment:'#',
-		}
+		fragment:'#'
+		};
 
 	function getFragment(href){ return getPart(href,delimiters.fragment); }
 	function getQuery(href){ return getPart(href,delimiters.query); }
@@ -36,7 +36,7 @@ function LocationDummy(href){
 		auth=getAuth(hrefpart);
 		port=getPort(hrefpart);
 		host=hrefpart;
-		href=(scheme?scheme+'//':'')+(auth?auth+'@':'')+host+(port?port+':':'')+path+query+fragment
+		href=(scheme?scheme+'//':'')+(auth?auth+'@':'')+host+(port?port+':':'')+path+query+fragment;
 		return href;
 		}
 	//}
@@ -61,7 +61,7 @@ function LocationDummy(href){
 			}
 		}
 
-	function toString(){return href}
+	function toString(){return href;}
 	
 	href=chop(href);
 	
@@ -76,4 +76,4 @@ function LocationDummy(href){
 	this.toString=toString;
 	}
 
-bar=new LocationDummy()
+bar=new LocationDummy();
