@@ -1,7 +1,7 @@
-function ytHack() {
+function YtHack() {
 	try {
 		function deserializeURI(uri) {
-			if (typeof(uri) != 'string') throw new TypeError('deserializeURI: String expected!');
+			if (typeof(uri) != 'string') throw new TypeError('Argument is not a string');
 			var i, uriObject = {};
 			uri = uri.split('&');
 			for (i = 0; i < uri.length; i++) {
@@ -11,52 +11,89 @@ function ytHack() {
 			return uriObject;
 		}
 
-		function getVideoTitle() {
-			return document.getElementById('watch-headline-title').getElementsByTagName('span')[0].title;
+		function getVideoTitle(pageType) {
+			try {
+				switch (pageType) {
+				case 'watch':
+					videoTitle = document.getElementById('watch-headline-title').getElementsByTagName('span')[0].title;
+					break;
+				case 'user':
+					videoTitle = document.getElementById('playnav-curvideo-title').getElementsByTagName('a')[0].innerHTML;
+					break;
+				default:
+					videoTitle = '';
+				}
+				return videoTitle;
+			} catch (e) {
+				throw new Error('Could not get videoTitle\n' + e.toString());
+			}
 		}
 
 		function getFlashVars(moviePlayer) {
-			if (typeof(moviePlayer) != 'object') moviePlayer = document.getElementById('movie_player');
-			return deserializeURI(moviePlayer.getAttribute('flashvars'));
+			try {
+				if (typeof(moviePlayer) != 'object') try {
+					moviePlayer = document.getElementById('movie_player');
+				} catch (e) {
+					throw new Error('Unsupported site content');
+				}
+				return deserializeURI(moviePlayer.getAttribute('flashvars'));
+			} catch (e) {
+				throw new Error('Could not get flashVars\n' + e.toString());
+			}
+		}
+
+		function getPageType() {
+			return location.pathname.split('/')[1];
 		}
 
 		function prepUrlMap(map) {
-			if (typeof(map) != 'string') throw new TypeError('prepUrlMap: String expected!');
-			var i;
-			map = map.split(',');
-			for (i = 0; i < map.length; i++) {
-				map[i] = deserializeURI(map[i]);
+			try {
+				if (typeof(map) != 'string') throw new TypeError('Argument is not a string');
+				var i;
+				map = map.split(',');
+				for (i = 0; i < map.length; i++) {
+					map[i] = deserializeURI(map[i]);
+				}
+				return map;
+			} catch (e) {
+				throw new Error('Could not prepare urlMap\n' + e.toString());
 			}
-			return map;
 		}
 
 		function prepFmtMap(map) {
-			if (typeof(map) != 'string') throw new TypeError('prepFmtMap: String expected!');
-			var i, fmtMap = {};
-			map = map.split(',');
-			for (i = 0; i < map.length; i++) {
-				map[i] = map[i].split('/');
-				fmtMap[map[i].shift()] = map[i];
+			try {
+				if (typeof(map) != 'string') throw new TypeError('Argument is not a string');
+				var i, fmtMap = {};
+				map = map.split(',');
+				for (i = 0; i < map.length; i++) {
+					map[i] = map[i].split('/');
+					fmtMap[map[i].shift()] = map[i];
+				}
+				return fmtMap;
+			} catch (e) {
+				throw new Error('Could not prepare fmtMap\n' + e.toString());
 			}
-			return fmtMap;
 		}
 
 		function prepLinks(urls, fmts) {
-			if (typeof(urls) != 'object' || typeof(fmts) != 'object') {
-				throw new TypeError('prepLinks: Object expected!');
+			try {
+				if (typeof(urls) != 'object' || typeof(fmts) != 'object') {
+					throw new TypeError('prepLinks: Object expected!');
+				}
+				var i, type, res, links = {};
+				for (i = 0; i < urls.length; i++) {
+					type = urls[i].type.split(';')[0].split('/')[1];
+					res = fmts[urls[i].itag][0].split('x')[1];
+					links[i] = {
+						href: urls[i].url,
+						text: res + 'p (' + type + ')'
+					};
+				}
+				return links;
+			} catch (e) {
+				throw new Error('Could not prepare links\n' + e.toString());
 			}
-			var i, type, res, links = {};
-			for (i = 0; i < urls.length; i++) {
-				type = urls[i].type.split(';')[0].split('/')[1];
-				res = fmts[urls[i].itag][0].split('x')[1];
-				links[i] = {
-					href: urls[i].url,
-					text: res + 'p (' + type + ')'
-				};
-			}
-			return links;
 		}
-
 		this.titleDiv = function() {
 			var key, titleDiv = document.createElement('div');
 			titleDiv.id = this.div.id + 'Title';
@@ -92,6 +129,7 @@ function ytHack() {
 		this.deserializeURI = deserializeURI;
 		this.getVideoTitle = getVideoTitle;
 		this.getFlashVars = getFlashVars;
+		this.getPageType = getPageType;
 		this.prepUrlMap = prepUrlMap;
 		this.prepFmtMap = prepFmtMap;
 		this.prepLinks = prepLinks;
@@ -99,11 +137,13 @@ function ytHack() {
 		this.div = {
 			id: 'ytHackDiv'
 		};
+
+		this.pageType = this.getPageType();
 		this.flashVars = this.getFlashVars();
 		this.yt = {
 			fmtMap: this.flashVars.fmt_list,
 			swfUrlMap: this.flashVars.url_encoded_fmt_stream_map,
-			videoTitle: getVideoTitle()
+			videoTitle: getVideoTitle(this.pageType)
 		};
 		this.swfUrlMap = prepUrlMap(this.yt.swfUrlMap);
 		this.fmtMap = prepFmtMap(this.yt.fmtMap);
@@ -168,8 +208,8 @@ function ytHack() {
 		this.show();
 
 	} catch (e) {
-		console.error(e);
+		console.error(e.toString());
 	}
 }
-if (typeof(hack) != 'undefined') hack.remove();
-hack = new ytHack();
+if (typeof(hack) == 'object' && typeof(hack) == 'function') hack.remove();
+hack = new YtHack();
