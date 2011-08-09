@@ -1,10 +1,9 @@
 //javascript:
 (function a() {
 	try {
-		document.body.removeChild(document.getElementById('_atssh'))
-	}
-	catch (e) {
-		console.log('When removing _atssh:', e)
+		document.body.removeChild(document.getElementById('_atssh'));
+	} catch (e) {
+		console.log('When removing _atssh:', e);
 	}
 	try {
 		url = document.getElementById('source_player').childNodes[0].src;
@@ -19,52 +18,46 @@
 			bs.fontSize = '72pt';
 			bs.zIndex = 99999999;
 			b.onclick = function() {
-				window.open(url)
+				window.open(url);
 			};
-			bs.position = 'fixed'
+			bs.position = 'fixed';
+		} catch (e) {
+			console.log('When adding teh button:', e);
 		}
-		catch (e) {
-			console.log('When adding teh button:', e)
-		}
-	}
-	catch (e) {
+	} catch (e) {
 		try {
 			try {
-				url = document.getElementById('np_vid').src
-			}
-			catch (e) {
+				url = document.getElementById('np_vid').src;
+			} catch (e) {
 				console.log('Missing np_vid.');
 				try {
-					url = document.getElementById('embedmvshre').src
-				}
-				catch (e) {
+					url = document.getElementById('embedmvshre').src;
+				} catch (e) {
 					console.log('Missing embedmvshre.');
 					try {
 						embed = document.getElementById('embedcontmvshre').getElementsByTagName('embed')[0];
-						if ((flashvars = embed.getAttribute('flashvars')) == null) throw 'No flashvars in embed.';
+						if ((flashvars = embed.getAttribute('flashvars')) === null) throw 'No flashvars in embed.';
 						flashvars = flashvars.split('&');
 						for (i = 0; i < flashvars.length; i++) {
 							c = flashvars[i].split('=');
 							if (c[0] == 'file') {
 								url = c[1];
-								break
+								break;
 							}
-							if (c[0] != 'file') throw 'No file in flashvars.'
+							if (c[0] != 'file') throw 'No file in flashvars.';
 						}
-					}
-					catch (e) {
-						throw 'Unsupported site content.\n' + e
+					} catch (e) {
+						throw 'Unsupported site content.\n' + e;
 					}
 				}
 			}
 			if (url == prompt('File URL:', url)) {
 				location.assign(url);
-				setTimeout(window.close(), 1000)
+				setTimeout(window.close(), 1000);
 			}
-		}
-		catch (e) {
+		} catch (e) {
 			console.log(e);
-			alert(e)
+			alert(e);
 		}
 	}
-})()
+})();

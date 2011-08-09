@@ -1,183 +1,158 @@
 function ytHack() {
 	try {
-		this.div = {
-			id: 'YThackDiv'
-		};
-		this.fmtTitles = {
-			0: '360p',
-			512000: 'AVC1',
-			640000: '480p',
-			2000000: '720p(HD)',
-			4000000: '1080p(HD)'
-		};
-
-	}
-	catch (err) {
-		block = 'videoTitle';
-		alert(block + '\n' + err);
-	}
-	try {
-
-		this.getVideoTitle = function() {
-			return document.getElementById('watch-headline-title').getElementsByTagName('span')[0].title;
-		};
-		this.yt = {
-			videoTitle: this.getVideoTitle()
-		};
-
-	}
-	catch (err) {
-		block = 'flashVars';
-		alert(block + '\n' + err)
-	}
-	try {
-
-		this.getFlashVars = function(moviePlayer) {
-			if (typeof(moviePlayer) != 'object') moviePlayer = document.getElementById('movie_player');
-			var flashVars = {},
-				flashVar = [];
-			var flashVarsStr = moviePlayer.getAttribute('flashvars').split('&');
-			for (i = 0; i < flashVarsStr.length; i++) {
-				flashVar = flashVarsStr[i].split('=');
-				flashVars[flashVar[0]] = flashVar[1];
+		function deserializeURI(uri) {
+			if (typeof(uri) != 'string') throw new TypeError('deserializeURI: String expected!');
+			var i, uriObject = {};
+			uri = uri.split('&');
+			for (i = 0; i < uri.length; i++) {
+				uri[i] = uri[i].split('=');
+				uriObject[uri[i].shift()] = decodeURIComponent(uri[i].join('='));
 			}
-			return flashVars;
-		};
+			return uriObject;
+		}
 
-		this.flashVars = this.getFlashVars();
-		this.yt.fmtMap = this.flashVars.fmt_map;
-		this.yt.swfUrlMap = this.flashVars.fmt_url_map;
+		function getVideoTitle() {
+			return document.getElementById('watch-headline-title').getElementsByTagName('span')[0].title;
+		}
 
-	}
-	catch (err) {
-		block = 'defines';
-		alert(block + '\n' + err)
-	}
-	try {
+		function getFlashVars(moviePlayer) {
+			if (typeof(moviePlayer) != 'object') moviePlayer = document.getElementById('movie_player');
+			return deserializeURI(moviePlayer.getAttribute('flashvars'));
+		}
 
-		this.prepUrlMap = function() {
-			swfUrlMap = decodeURIComponent(this.yt.swfUrlMap);
-			swfUrlMap = swfUrlMap.split(',');
-			for (key in swfUrlMap) {
-				swfUrlMap[key] = swfUrlMap[key].replace('|', ':"') + '"'
-			};
-			swfUrlMap = '{' + swfUrlMap.join(',') + '}';
-			swfUrlMap = eval('(' + swfUrlMap + ')');
-			return swfUrlMap;
-		};
-		this.swfUrlMap = this.prepUrlMap();
+		function prepUrlMap(map) {
+			if (typeof(map) != 'string') throw new TypeError('prepUrlMap: String expected!');
+			var i;
+			map = map.split(',');
+			for (i = 0; i < map.length; i++) {
+				map[i] = deserializeURI(map[i]);
+			}
+			return map;
+		}
 
-	}
-	catch (err) {
-		block = 'urlmap';
-		alert(block + '\n' + err)
-	}
-	try {
+		function prepFmtMap(map) {
+			if (typeof(map) != 'string') throw new TypeError('prepFmtMap: String expected!');
+			var i, fmtMap = {};
+			map = map.split(',');
+			for (i = 0; i < map.length; i++) {
+				map[i] = map[i].split('/');
+				fmtMap[map[i].shift()] = map[i];
+			}
+			return fmtMap;
+		}
 
-		this.prepFmtMap = function() {
-			var fmtMap = decodeURIComponent(this.yt.fmtMap),
-				re = /\D+/;
-			fmtMap = fmtMap.split(',');
-			for (key in fmtMap) {
-				fmt = fmtMap[key].split('/');
-				for (i in fmt)
-				if (re.test(fmt[i])) fmt[i] = '"' + fmt[i] + '"';
-				fmtMap[key] = fmt[0] + ':[' + fmt.join(',') + ']';
-			};
-			fmtMap = '{' + fmtMap.join(',') + '}';
-			return eval('(' + fmtMap + ')');
-		};
-		this.fmtMap = this.prepFmtMap();
-
-	}
-	catch (err) {
-		block = 'fmtmap';
-		alert(block + '\n' + err)
-	}
-	try {
+		function prepLinks(urls, fmts) {
+			if (typeof(urls) != 'object' || typeof(fmts) != 'object') {
+				throw new TypeError('prepLinks: Object expected!');
+			}
+			var i, type, res, links = {};
+			for (i = 0; i < urls.length; i++) {
+				type = urls[i].type.split(';')[0].split('/')[1];
+				res = fmts[urls[i].itag][0].split('x')[1];
+				links[i] = {
+					href: urls[i].url,
+					text: res + 'p (' + type + ')'
+				};
+			}
+			return links;
+		}
 
 		this.titleDiv = function() {
-			titleDiv = document.createElement('div');
+			var key, titleDiv = document.createElement('div');
 			titleDiv.id = this.div.id + 'Title';
-
-			titleDiv.style.fontWeight = 'bold';
-			titleDiv.style.padding = '7px';
-			titleDiv.style.float = 'left';
-			titleDiv.appendChild(document.createTextNode(this.yt.videoTitle));
+			for (key in this.styles.titleDiv) {
+				titleDiv.style[key] = this.styles.titleDiv[key];
+			}
+			titleDiv.appendChild(document.createTextNode(this.yt.videoTitle + '\n'));
 			return titleDiv;
-		}
-
-	}
-	catch (err) {
-		block = 'titlediv';
-		alert(block + '\n' + err)
-	}
-	try {
+		};
 		this.linksDiv = function() {
-			linksDiv = document.createElement('div');
+			var key, linksDiv = document.createElement('div');
 			linksDiv.id = this.div.id + 'Links';
-
-			linksDiv.style.float = 'right';
-			linksDiv.style.padding = '7px';
-			linksDiv.style.position = 'absolute';
-			linksDiv.style.top = '0px';
-			linksDiv.style.right = '0px';
-			linksDiv.style.borderLeft = '3px solid maroon';
-
-			for (key in this.swfUrlMap) {
-				anchor = document.createElement('a');
-				anchor.href = this.swfUrlMap[key];
-				anchor.target = '_blank';
-				anchor.style.color = '#F80';
-				anchor_text = this.fmtTitles[this.fmtMap[key][1]];
-				if (anchor_text == undefined) anchor_text = this.fmtMap[key][1];
-				if ((this.fmtMap[key][1] == 512000) || (!this.fmtMap[key][1] && !this.fmtMap[key][4])) {
-					anchor.style.color = '#C60';
-				}
-				if (!this.fmtMap[key][1] && !this.fmtMap[key][4]) {
-					anchor_text = 'LD';
-				}
-				anchor.appendChild(document.createTextNode(anchor_text));
-				linksDiv.appendChild(anchor);
+			for (key in this.styles.linksDiv) {
+				linksDiv.style[key] = this.styles.linksDiv[key];
+			}
+			for (key in this.links) {
+				linksDiv.appendChild(this.linksDivAnchor(this.links[key]));
 				linksDiv.appendChild(document.createTextNode('\n'));
-			};
+			}
 			return linksDiv;
-		}
+		};
+		this.linksDivAnchor = function(link) {
+			var key, anchor = document.createElement('a');
+			anchor.href = link.href;
+			anchor.target = '_blank';
+			for (key in this.styles.anchor) {
+				anchor.style[key] = this.styles.anchor[key];
+			}
+			anchor.appendChild(document.createTextNode(link.text));
+			return anchor;
+		};
 
-	}
-	catch (err) {
-		block = 'linksdiv';
-		alert(block + '\n' + err)
-	}
-	try {
+		this.deserializeURI = deserializeURI;
+		this.getVideoTitle = getVideoTitle;
+		this.getFlashVars = getFlashVars;
+		this.prepUrlMap = prepUrlMap;
+		this.prepFmtMap = prepFmtMap;
+		this.prepLinks = prepLinks;
+
+		this.div = {
+			id: 'ytHackDiv'
+		};
+		this.flashVars = this.getFlashVars();
+		this.yt = {
+			fmtMap: this.flashVars.fmt_list,
+			swfUrlMap: this.flashVars.url_encoded_fmt_stream_map,
+			videoTitle: getVideoTitle()
+		};
+		this.swfUrlMap = prepUrlMap(this.yt.swfUrlMap);
+		this.fmtMap = prepFmtMap(this.yt.fmtMap);
+		this.links = this.prepLinks(this.swfUrlMap, this.fmtMap);
+
+		this.styles = {
+			titleDiv: {
+				fontWeight: 'bold',
+				padding: '7px',
+				float: 'left'
+			},
+			linksDiv: {
+				float: 'right',
+				padding: '7px',
+				position: 'absolute',
+				top: '0px',
+				right: '0px',
+				borderLeft: '3px solid maroon'
+			},
+			anchor: {
+				color: '#F80'
+			},
+			div: {
+				position: 'absolute',
+				top: '54px',
+				left: '18px',
+				right: '24px',
+				background: 'black',
+				color: 'red',
+				border: '3px solid maroon'
+			}
+		};
+
 
 		this.add = function() {
-			div = document.createElement('div');
+			var key, div = document.createElement('div');
 			div.id = this.div.id;
 
+			for (key in this.styles.div) {
+				div.style[key] = this.styles.div[key];
+			}
 			div.style.display = 'none';
-			div.style.position = 'absolute';
-			div.style.top = '54px';
-			div.style.left = '23px';
-			div.style.width = '954px';
-			div.style.background = 'black';
-			div.style.color = 'red';
-			div.style.border = '3px solid maroon';
-
-			div.appendChild(this.titleDiv());
-			div.appendChild(this.linksDiv());
 
 			document.body.appendChild(div);
+			div.appendChild(this.titleDiv());
+			div.appendChild(this.linksDiv());
 			this.div = div;
 			return true;
 		};
-	}
-	catch (err) {
-		block = 'add';
-		alert(block + '\n' + err)
-	}
-	try {
-
 		this.remove = function() {
 			this.hide();
 			return document.body.removeChild(this.div);
@@ -188,21 +163,13 @@ function ytHack() {
 		this.hide = function() {
 			return ((this.div.style.display = 'none') == 'none');
 		};
-	}
-	catch (err) {
-		block = 'tiny fns';
-		alert(block + '\n' + err)
-	}
-	try {
 
 		this.add();
 		this.show();
-	}
-	catch (err) {
-		block = 'init';
-		alert(block + '\n' + err)
-	}
-};
 
+	} catch (e) {
+		console.error(e);
+	}
+}
 if (typeof(hack) != 'undefined') hack.remove();
 hack = new ytHack();
