@@ -1,4 +1,5 @@
 5)	Fix ytHack.js to work!
+5)	Fix num2text.js to have '1 000 000 000 001' to translate into 'one trillion and one' not 'one trillion billion million thousand one'
 
 4)	Fix locationDummy.js to work with about:stuff URLs
 1)	Figure out TODO for the whole website/ folder
